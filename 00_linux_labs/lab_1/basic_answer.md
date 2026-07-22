@@ -140,3 +140,83 @@ total 4
 ![Ảnh minh chứng Bài 1.5](images/bai-1.5.jpg)
 
 ---
+---
+
+## Bài 1.6
+
+### Đề bài
+
+Di chuyển tệp `README.txt` trong thư mục `data/raw/2026/07/` ra thư mục cha `data/raw/2026/` và đổi tên thành `info.metadata`.
+
+### Lệnh thực thi
+
+```bash
+mv data/raw/2026/07/README.txt data/raw/2026/info.metadata
+```
+
+### Kết quả
+
+```text
+total 8
+drwxr-xr-x 2 hoaido hoaido 4096 Jul 22 08:50 07
+-rw-r--r-- 1 hoaido hoaido   33 Jul 22 08:49 info.metadata
+```
+
+### Kiểm tra nội dung file
+
+```bash
+cat data/raw/2026/info.metadata
+```
+
+Kết quả:
+
+```text
+Data Engineering Curriculum 2026
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 1.6](images/bai-1.6.jpg)
+
+---
+---
+
+## Bài 1.7
+
+### Đề bài
+
+Kiểm tra dung lượng ổ đĩa còn trống của toàn bộ các phân vùng trên hệ thống.
+
+### Lệnh thực thi
+
+```bash
+df -h
+```
+
+### Kết quả
+
+```text
+Filesystem      Size  Used Avail Use% Mounted on
+none            3.9G     0  3.9G   0% /usr/lib/modules/6.18.33.2-microsoft-standard-WSL2
+none            3.9G  4.0K  3.9G   1% /mnt/wsl
+drivers         477G  334G  143G  71% /usr/lib/wsl/drivers
+/dev/sdd       1007G  2.1G  954G   1% /
+none            3.9G   64K  3.9G   1% /mnt/wslg
+none            3.9G     0  3.9G   0% /usr/lib/wsl/lib
+rootfs          3.9G  2.8M  3.9G   1% /init
+none            3.9G  508K  3.9G   1% /run
+none            3.9G     0  3.9G   0% /run/lock
+none            3.9G     0  3.9G   0% /run/shm
+none            3.9G   80K  3.9G   1% /mnt/wslg/versions.txt
+none            3.9G   80K  3.9G   1% /mnt/wslg/doc
+C:\             477G  334G  143G  71% /mnt/c
+D:\             487G  111G  377G  23% /mnt/d
+G:\             200G   64G  137G  32% /mnt/g
+tmpfs           787M   20K  787M   1% /run/user/1000
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 1.7](images/bai-1.7.jpg)
+
+---
