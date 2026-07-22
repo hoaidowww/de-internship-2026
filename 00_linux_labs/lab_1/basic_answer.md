@@ -51,3 +51,15 @@ drwxr-xr-x 3 hoaido hoaido  4096 Jul 21 16:23 ..
 ![Ảnh minh chứng Bài 1.2](bai-1.2.jpg)
 
 ---
+---
+
+## Bài 1.3
+
+### Đề bài
+
+Tạo một cấu trúc thư mục lồng nhau dạng `data/raw/2026/07/` chỉ bằng một câu lệnh duy nhất.
+
+### Lệnh thực thi
+
+```bash
+mkdir -p data/raw/2026/07/
