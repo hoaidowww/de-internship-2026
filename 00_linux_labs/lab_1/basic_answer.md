@@ -20,7 +20,7 @@ pwd
 
 ### Ảnh minh chứng
 
-![Ảnh minh chứng Bài 1.1](bai-1.1.jpg)
+![Ảnh minh chứng Bài 1.1](images/bai-1.1.jpg)
 
 ---
 
@@ -48,9 +48,8 @@ drwxr-xr-x 3 hoaido hoaido  4096 Jul 21 16:23 ..
 
 ### Ảnh minh chứng
 
-![Ảnh minh chứng Bài 1.2](bai-1.2.jpg)
+![Ảnh minh chứng Bài 1.2](images/bai-1.2.jpg)
 
----
 ---
 
 ## Bài 1.3
@@ -62,4 +61,82 @@ Tạo một cấu trúc thư mục lồng nhau dạng `data/raw/2026/07/` chỉ 
 ### Lệnh thực thi
 
 ```bash
-mkdir -p data/raw/2026/07/
+mkdir -p data/raw/2026/07
+```
+
+### Kết quả
+
+```text
+.:
+basic_answer.md  data  images
+
+./data:
+raw
+
+./data/raw:
+2026
+
+./data/raw/2026:
+07
+
+./data/raw/2026/07:
+
+./images:
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 1.3](images/bai-1.3.jpg)
+
+---
+---
+
+## Bài 1.4
+
+### Đề bài
+
+Tạo một tệp tin trống tên là `README.txt` và ghi nội dung `"Data Engineering Curriculum 2026"` vào đó bằng lệnh `echo` kết hợp dẫn hướng xuất `>`.
+
+### Lệnh thực thi
+
+```bash
+echo "Data Engineering Curriculum 2026" > README.txt
+```
+
+### Kết quả
+
+```text
+Data Engineering Curriculum 2026
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 1.4](images/bai-1.4.jpg)
+
+---
+---
+
+## Bài 1.5
+
+### Đề bài
+
+Sao chép tệp `README.txt` vào thư mục `data/raw/2026/07/` vừa tạo.
+
+### Lệnh thực thi
+
+```bash
+cp README.txt data/raw/2026/07/
+```
+
+### Kết quả
+
+```text
+total 4
+-rw-r--r-- 1 hoaido hoaido 33 Jul 22 08:24 README.txt
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 1.5](images/bai-1.5.jpg)
+
+---
