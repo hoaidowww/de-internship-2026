@@ -336,225 +336,98 @@ ls -l data/raw/2026/info.metadata
 ### Kết quả
 
 ```text
-Dán kết quả thực tế của lệnh vào đây.
+-rw-r--r-- 1 hoaido hoaido 33 Jun 15 12:00 data/raw/2026/info.metadata
 ```
+
+### Giải thích
+
+- `-rw-r--r--`: quyền truy cập của file.
+- `rw-`: Owner (`hoaido`) có quyền đọc và ghi.
+- `r--`: Group (`hoaido`) chỉ có quyền đọc.
+- `r--`: Others chỉ có quyền đọc.
+- `33`: kích thước file là 33 bytes.
+- `Jun 15 12:00`: thời gian sửa đổi của file.
+- `data/raw/2026/info.metadata`: đường dẫn của file.
 
 ### Ảnh minh chứng
 
 ![Ảnh minh chứng Bài 2.1](images/bai-2.1.jpg)
 
 ---
-
 ## Bài 2.2
 
 ### Đề bài
 
-Cấp quyền thực thi cho tệp `script.sh` chỉ dành cho người sở hữu tệp.
+Cấp quyền thực thi (Execute) cho tệp `script.sh` chỉ dành cho người sở hữu tệp (Owner).
 
 ### Lệnh thực thi
 
 ```bash
+touch script.sh
 chmod u+x script.sh
+```
+
+### Kiểm tra kết quả
+
+```bash
+ls -l script.sh
 ```
 
 ### Kết quả
 
 ```text
-Dán kết quả thực tế của lệnh kiểm tra quyền vào đây.
+-rwxr--r-- 1 hoaido hoaido 0 Jul 22 16:57 script.sh
 ```
+
+### Giải thích
+
+- `-rwx`: Owner (`hoaido`) có quyền đọc (`r`), ghi (`w`) và thực thi (`x`).
+- `r--`: Group (`hoaido`) chỉ có quyền đọc.
+- `r--`: Others chỉ có quyền đọc.
+- Quyền `x` đã được thêm cho Owner, đáp ứng yêu cầu của bài.
 
 ### Ảnh minh chứng
 
 ![Ảnh minh chứng Bài 2.2](images/bai-2.2.jpg)
 
 ---
-
 ## Bài 2.3
 
 ### Đề bài
 
-Thu hồi quyền ghi của nhóm Khác (Others) đối với tệp `database.config`.
+Thu hồi quyền ghi (Write) của nhóm Khác (Others) đối với tệp `database.config`.
 
 ### Lệnh thực thi
 
 ```bash
+touch database.config
+ls -l database.config
 chmod o-w database.config
+ls -l database.config
 ```
 
-### Kết quả
+### Kết quả trước khi thu hồi quyền ghi
 
 ```text
-Dán kết quả thực tế của lệnh kiểm tra quyền vào đây.
+-rw-r--r-- 1 hoaido hoaido 0 Jul 22 16:59 database.config
 ```
 
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.3](images/bai-2.3.jpg)
-
----
-
-## Bài 2.4
-
-### Đề bài
-
-Thiết lập phân quyền cho tệp `secure_key.pem` sao cho chỉ người sở hữu có quyền đọc và viết, còn tất cả các nhóm khác không có quyền gì.
-
-### Lệnh thực thi
-
-```bash
-chmod 600 secure_key.pem
-```
-
-### Kết quả
+### Kết quả sau khi thu hồi quyền ghi
 
 ```text
-Dán kết quả thực tế của lệnh kiểm tra quyền vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.4](images/bai-2.4.jpg)
-
----
-
-## Bài 2.5
-
-### Đề bài
-
-Chuyển đổi chủ sở hữu của tệp `app.log` thành người dùng `admin`.
-
-### Lệnh thực thi
-
-```bash
-chown admin app.log
-```
-
-### Kết quả
-
-```text
-Dán kết quả thực tế của lệnh kiểm tra quyền và sở hữu vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.5](images/bai-2.5.jpg)
-
----
-
-## Bài 2.6
-
-### Đề bài
-
-Chuyển đổi đồng thời chủ sở hữu thành `admin` và nhóm sở hữu thành `developers` cho thư mục `data/`.
-
-### Lệnh thực thi
-
-```bash
-chown admin:developers data/
-```
-
-### Kết quả
-
-```text
-Dán kết quả thực tế của lệnh kiểm tra quyền và sở hữu vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.6](images/bai-2.6.jpg)
-
----
-
-## Bài 2.7
-
-### Đề bài
-
-Áp dụng quyền `755` đệ quy cho toàn bộ thư mục con và tệp tin nằm bên trong thư mục `data/`.
-
-### Lệnh thực thi
-
-```bash
-chmod -R 755 data/
-```
-
-### Kết quả
-
-```text
-Dán kết quả thực tế của lệnh kiểm tra quyền vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.7](images/bai-2.7.jpg)
-
----
-
-## Bài 2.8
-
-### Đề bài
-
-Giải thích tại sao không nên cấp quyền `777` cho thư mục chứa code chạy hoặc tệp tin cấu hình nhạy cảm trong thực tế.
-
-### Lệnh thực thi
-
-```text
-Không áp dụng. Đây là bài yêu cầu giải thích.
+-rw-r--r-- 1 hoaido hoaido 0 Jul 22 16:59 database.config
 ```
 
 ### Giải thích
 
-Quyền `777` cho phép Owner, Group và Others đều có quyền đọc, ghi và thực thi. Điều này làm tăng nguy cơ người dùng hoặc tiến trình không được phép có thể sửa đổi, xóa hoặc thực thi các tệp tin quan trọng. Trong môi trường thực tế, nên cấp quyền tối thiểu cần thiết theo nguyên tắc Least Privilege để giảm rủi ro bảo mật.
+- `o`: đại diện cho Others.
+- `-w`: thu hồi quyền Write.
+- Quyền hiện tại của Others là `r--`, không có quyền ghi `w`.
+- Lệnh `chmod o-w database.config` được thực hiện thành công.
+- Do file ban đầu đã không có quyền ghi cho Others nên sau khi thực hiện lệnh, quyền của file không thay đổi.
 
 ### Ảnh minh chứng
 
-![Ảnh minh chứng Bài 2.8](images/bai-2.8.jpg)
-
----
-
-## Bài 2.9
-
-### Đề bài
-
-Thay đổi giá trị `umask` để các tệp tin mới được tạo bởi user hiện tại mặc định có quyền `644`.
-
-### Lệnh thực thi
-
-```bash
-umask 022
-```
-
-### Kết quả
-
-```text
-Dán kết quả kiểm tra umask và quyền của file mới tạo vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.9](images/bai-2.9.jpg)
-
----
-
-## Bài 2.10
-
-### Đề bài
-
-Khắc phục lỗi `Permission Denied` khi chạy một Python script kết nối ghi file vào thư mục `/var/log/my_app/` mà không cần dùng quyền `sudo`.
-
-### Lệnh thực thi
-
-```text
-Thực hiện các lệnh phân quyền và sở hữu phù hợp để user hiện tại có quyền ghi vào thư mục /var/log/my_app/ mà không cần sudo.
-```
-
-### Kết quả
-
-```text
-Dán kết quả thực tế chứng minh script có thể ghi file thành công mà không cần sudo vào đây.
-```
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.10](images/bai-2.10.jpg)
+![Ảnh minh chứng Bài 2.3](images/bai-2.3.jpg)
 
 ---
