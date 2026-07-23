@@ -743,66 +743,75 @@ Ví dụ:
 Quyền `777` cho phép Owner, Group và Others đều có toàn bộ quyền đọc, ghi và thực thi. Điều này rất nguy hiểm trong môi trường thực tế vì có thể dẫn đến việc dữ liệu bị sửa đổi, xóa hoặc chèn mã độc.
 
 Vì vậy, không nên sử dụng quyền `777` một cách tùy tiện. Thay vào đó, cần cấp quyền tối thiểu cần thiết theo nguyên tắc **Least Privilege** để đảm bảo an toàn và bảo mật cho hệ thống.
-
----
 ## Bài 2.9
 
 ### Đề bài
 
-Sử dụng lệnh `stat` để kiểm tra thông tin chi tiết của tệp `secure_key.pem`, bao gồm quyền truy cập, chủ sở hữu và nhóm sở hữu.
+Thay đổi giá trị `umask` để từ thời điểm này, các tệp tin mới được tạo bởi user hiện tại mặc định có quyền `644`.
 
 ### Lệnh thực thi
 
+Thiết lập `umask`:
+
 ```bash
-stat secure_key.pem
+umask 022
+```
+
+Kiểm tra bằng cách tạo một file mới:
+
+```bash
+touch umask_test.txt
+```
+
+Kiểm tra quyền của file:
+
+```bash
+ls -l umask_test.txt
 ```
 
 ### Kết quả
 
 ```text
-File: secure_key.pem
-Size: 0               Blocks: 0          IO Block: 4096   regular empty file
-Device: 8,48    Inode: 56001       Links: 1
-Access: (0600/-rw-------)  Uid: ( 1000/  hoaido)   Gid: ( 1000/  hoaido)
-Access: 2026-07-22 17:07:59.806781995 +0000
-Modify: 2026-07-22 17:07:59.806781995 +0000
-Change: 2026-07-22 17:08:03.543871455 +0000
-Birth: 2026-07-22 17:07:59.806781995 +0000
+-rw-r--r-- 1 hoaido hoaido 0 Jul 23 08:46 umask_test.txt
 ```
 
-### Giải thích
+### Phân tích
 
-- `File: secure_key.pem`: tên file được kiểm tra.
-- `Size: 0`: file hiện đang rỗng, có kích thước 0 byte.
-- `Access: (0600/-rw-------)`: file có quyền `600`.
-- `Uid: (1000/hoaido)`: Owner của file là user `hoaido`.
-- `Gid: (1000/hoaido)`: Group sở hữu file là `hoaido`.
-- `Access`: thời gian file được truy cập lần cuối.
-- `Modify`: thời gian nội dung file được sửa đổi lần cuối.
-- `Change`: thời gian metadata hoặc quyền của file được thay đổi.
-- `Birth`: thời gian file được tạo.
-
-### Phân tích quyền
-
-Quyền:
+File `umask_test.txt` có quyền:
 
 ```text
-0600
+-rw-r--r--
 ```
 
-tương ứng với:
+Tương ứng với quyền số:
 
 ```text
-Owner   → rw-
-Group   → ---
-Others  → ---
+644
 ```
 
-Như vậy, chỉ Owner `hoaido` có quyền đọc và ghi file. Group và Others không có bất kỳ quyền nào.
+Trong đó:
+
+```text
+Owner   → rw-   → Đọc và ghi
+Group   → r--   → Chỉ đọc
+Others  → r--   → Chỉ đọc
+```
+
+Giá trị `umask` được thiết lập là:
+
+```text
+022
+```
+
+Với file thông thường, quyền mặc định ban đầu là `666`. Sau khi áp dụng `umask 022`, quyền của file mới được tạo là:
+
+```text
+666 - 022 = 644
+```
 
 ### Kết luận
 
-Lệnh `stat secure_key.pem` cho thấy file `secure_key.pem` đang có quyền `600`, đúng với yêu cầu của Bài 2.4. File chỉ cho phép Owner đọc và ghi, giúp hạn chế người dùng khác truy cập vào file.
+Sau khi thiết lập `umask 022`, file mới `umask_test.txt` được tạo với quyền `644` (`-rw-r--r--`). Điều này đáp ứng yêu cầu của bài.
 
 ### Ảnh minh chứng
 
@@ -810,244 +819,3 @@ Lệnh `stat secure_key.pem` cho thấy file `secure_key.pem` đang có quyền 
 
 ---
 
-## Bài 2.10
-
-### Đề bài
-
-Sử dụng lệnh `namei` để kiểm tra quyền truy cập của từng thành phần trên đường dẫn đến tệp `info.metadata`.
-
-### Lệnh thực thi
-
-```bash
-namei -l data/raw/2026/info.metadata
-```
-
-### Kết quả
-
-```text
-f: data/raw/2026/info.metadata
-drwxr-xr-x admin  developers data
-drwxr-xr-x hoaido hoaido     raw
-drwxr-xr-x hoaido hoaido     2026
--rwxr-xr-x hoaido hoaido     info.metadata
-```
-
-### Giải thích
-
-Lệnh `namei -l` phân tích từng thành phần trên đường dẫn:
-
-```text
-data/
-└── raw/
-    └── 2026/
-        └── info.metadata
-```
-
-Kết quả cho thấy:
-
-- `data/`: quyền `drwxr-xr-x`, Owner là `admin`, Group là `developers`.
-- `raw/`: quyền `drwxr-xr-x`, Owner là `hoaido`, Group là `hoaido`.
-- `2026/`: quyền `drwxr-xr-x`, Owner là `hoaido`, Group là `hoaido`.
-- `info.metadata`: quyền `-rwxr-xr-x`, Owner là `hoaido`, Group là `hoaido`.
-
-### Phân tích quyền
-
-Các thư mục `data/`, `raw/` và `2026/` đều có quyền:
-
-```text
-drwxr-xr-x
-```
-
-Tương ứng với quyền `755`:
-
-```text
-Owner   → rwx
-Group   → r-x
-Others  → r-x
-```
-
-File `info.metadata` cũng đang có quyền:
-
-```text
--rwxr-xr-x
-```
-
-Tương ứng với quyền `755`.
-
-### Kết luận
-
-Lệnh `namei -l` giúp kiểm tra quyền truy cập của từng thư mục và file trên một đường dẫn cụ thể. Đây là công cụ hữu ích để xác định nguyên nhân của lỗi `Permission denied`, vì có thể kiểm tra quyền của từng thư mục trung gian trước khi truy cập đến file đích.
-
-Trong trường hợp này, đường dẫn đến `info.metadata` có thể được truy cập thông qua các thư mục `data/`, `raw/` và `2026/`, đồng thời file `info.metadata` có quyền `755`.
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.10](images/bai-2.10.jpg)
-
----
-## Bài 2.11
-
-### Đề bài
-
-Thay đổi quyền truy cập của tệp `secure_key.pem` từ `600` thành `644` bằng cách sử dụng dạng quyền số.
-
-### Lệnh thực thi
-
-```bash
-chmod 644 secure_key.pem
-```
-
-### Kiểm tra kết quả
-
-```bash
-ls -l secure_key.pem
-```
-
-### Kết quả
-
-```text
--rw-r--r-- 1 hoaido hoaido 0 Jul 22 17:07 secure_key.pem
-```
-
-### Giải thích
-
-Quyền `644` được phân chia như sau:
-
-```text
-Owner   → rw-
-Group   → r--
-Others  → r--
-```
-
-Trong đó:
-
-- `6 = 4 + 2` → `rw-` → Owner có quyền đọc và ghi.
-- `4` → `r--` → Group chỉ có quyền đọc.
-- `4` → `r--` → Others chỉ có quyền đọc.
-
-Các giá trị quyền cơ bản:
-
-```text
-4 = Read (r)  → Quyền đọc
-2 = Write (w) → Quyền ghi
-1 = Execute (x) → Quyền thực thi
-```
-
-Do đó:
-
-```text
-644 = rw-r--r--
-```
-
-### Kết luận
-
-Sau khi thực hiện lệnh `chmod 644 secure_key.pem`, file `secure_key.pem` có quyền `644`. Owner `hoaido` có quyền đọc và ghi, trong khi Group và Others chỉ có quyền đọc.
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.11](images/bai-2.11.jpg)
-
----
-## Bài 2.12
-
-### Đề bài
-
-Sử dụng `chmod` với dạng ký hiệu để thêm quyền thực thi cho Owner và thu hồi quyền đọc của Others đối với tệp `secure_key.pem`.
-
-### Lệnh thực thi
-
-Thêm quyền thực thi cho Owner:
-
-```bash
-chmod u+x secure_key.pem
-```
-
-Kiểm tra:
-
-```bash
-ls -l secure_key.pem
-```
-
-Kết quả:
-
-```text
--rwxr--r-- 1 hoaido hoaido 0 Jul 22 17:07 secure_key.pem
-```
-
-Thu hồi quyền đọc của Others:
-
-```bash
-chmod o-r secure_key.pem
-```
-
-Kiểm tra kết quả cuối cùng:
-
-```bash
-ls -l secure_key.pem
-```
-
-### Kết quả cuối cùng
-
-```text
--rwxr----- 1 hoaido hoaido 0 Jul 22 17:07 secure_key.pem
-```
-
-### Giải thích
-
-Lệnh:
-
-```bash
-chmod u+x secure_key.pem
-```
-
-có ý nghĩa:
-
-- `u`: User/Owner.
-- `+`: thêm quyền.
-- `x`: quyền thực thi.
-- Kết quả: Owner được thêm quyền thực thi.
-
-Lệnh:
-
-```bash
-chmod o-r secure_key.pem
-```
-
-có ý nghĩa:
-
-- `o`: Others.
-- `-`: thu hồi quyền.
-- `r`: quyền đọc.
-- Kết quả: Others bị thu hồi quyền đọc.
-
-### Phân tích quyền cuối cùng
-
-```text
-Owner   → rwx
-Group   → r--
-Others  → ---
-```
-
-Quyền này tương ứng với:
-
-```text
-740
-```
-
-Trong đó:
-
-```text
-7 = 4 + 2 + 1 = rwx
-4 = 4         = r--
-0 = 0         = ---
-```
-
-### Kết luận
-
-Sau khi thực hiện hai lệnh `chmod`, file `secure_key.pem` có quyền `740`. Owner `hoaido` có toàn quyền đọc, ghi và thực thi; Group chỉ có quyền đọc; Others không có quyền truy cập.
-
-### Ảnh minh chứng
-
-![Ảnh minh chứng Bài 2.12](images/bai-2.12.jpg)
-
----
