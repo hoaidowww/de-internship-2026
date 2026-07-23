@@ -1,4 +1,4 @@
-# LAB 1 - LINUX BASICS
+/# LAB 1 - LINUX BASICS
 
 ---
 
@@ -819,3 +819,1114 @@ Sau khi thiết lập `umask 022`, file mới `umask_test.txt` được tạo v�
 
 ---
 
+## Bài 2.10
+
+### Đề bài
+
+Khắc phục lỗi `Permission Denied` khi chạy Python script ghi file log vào thư mục `/var/log/my_app/` mà không cần sử dụng `sudo` khi chạy script.
+
+### Bước 1: Tạo thư mục log
+
+#### Lệnh thực thi
+
+```bash
+sudo mkdir -p /var/log/my_app
+```
+
+Kiểm tra thư mục:
+
+```bash
+ls -ld /var/log/my_app
+```
+
+#### Kết quả ban đầu
+
+```text
+drwxr-xr-x 2 root root 4096 Jul 23 09:03 /var/log/my_app
+```
+
+Thư mục thuộc sở hữu của `root:root`.
+
+### Bước 2: Tạo Python script
+
+Tạo file:
+
+```bash
+nano write_log.py
+```
+
+Nội dung file:
+
+```python
+with open("/var/log/my_app/app.log", "a") as f:
+    f.write("Data Engineering log\n")
+
+print("Write log successfully")
+```
+
+### Bước 3: Kiểm tra lỗi Permission Denied
+
+Chạy script mà không sử dụng `sudo`:
+
+```bash
+python3 write_log.py
+```
+
+#### Kết quả
+
+```text
+Traceback (most recent call last):
+  File "/home/hoaido/de-internship-2026/00_linux_labs/lab_1/write_log.py", line 1, in <module>
+    with open("/var/log/my_app/app.log", "a") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/var/log/my_app/app.log'
+```
+
+Nguyên nhân là user `hoaido` không có quyền ghi vào thư mục `/var/log/my_app/`, vì thư mục đang thuộc sở hữu của `root:root`.
+
+### Bước 4: Cấp quyền sở hữu cho user `hoaido`
+
+Thay đổi Owner và Group của thư mục:
+
+```bash
+sudo chown -R hoaido:hoaido /var/log/my_app
+```
+
+Kiểm tra:
+
+```bash
+ls -ld /var/log/my_app
+```
+
+#### Kết quả
+
+```text
+drwxr-xr-x 2 hoaido hoaido 4096 Jul 23 09:03 /var/log/my_app
+```
+
+Thư mục `/var/log/my_app` hiện thuộc sở hữu của user `hoaido` và group `hoaido`.
+
+### Bước 5: Chạy lại Python script
+
+Chạy script mà không sử dụng `sudo`:
+
+```bash
+python3 write_log.py
+```
+
+#### Kết quả
+
+```text
+Write log successfully
+```
+
+Script đã ghi log thành công.
+
+### Bước 6: Kiểm tra nội dung file log
+
+```bash
+cat /var/log/my_app/app.log
+```
+
+#### Kết quả
+
+```text
+Data Engineering log
+```
+
+### Bước 7: Kiểm tra quyền và Owner của file log
+
+```bash
+ls -l /var/log/my_app/app.log
+```
+
+#### Kết quả
+
+```text
+-rw-r--r-- 1 hoaido hoaido 21 Jul 23 09:05 /var/log/my_app/app.log
+```
+
+### Giải thích
+
+Ban đầu, thư mục `/var/log/my_app` có Owner và Group là:
+
+```text
+root root
+```
+
+Do đó, user `hoaido` không có quyền ghi file vào thư mục này và khi chạy Python script đã xảy ra lỗi:
+
+```text
+PermissionError: [Errno 13] Permission denied
+```
+
+Sau đó, sử dụng lệnh:
+
+```bash
+sudo chown -R hoaido:hoaido /var/log/my_app
+```
+
+để thay đổi Owner và Group của thư mục thành `hoaido`.
+
+Sau khi thay đổi quyền sở hữu, user `hoaido` có thể chạy:
+
+```bash
+python3 write_log.py
+```
+
+mà không cần sử dụng `sudo`, và script có thể ghi dữ liệu vào:
+
+```text
+/var/log/my_app/app.log
+```
+
+### Kết luận
+
+Đã khắc phục thành công lỗi `Permission Denied`. Sau khi cấp quyền sở hữu thư mục `/var/log/my_app` cho user `hoaido`, Python script có thể ghi log thành công mà không cần chạy bằng `sudo`.
+
+Kết quả cuối cùng:
+
+```text
+Write log successfully
+```
+
+File log:
+
+```text
+/var/log/my_app/app.log
+```
+
+Owner:
+
+```text
+hoaido:hoaido
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 2.10](images/bai-2.10.jpg)
+
+---
+## CHỦ ĐỀ 3: Tìm kiếm, Bộ lọc & Xử lý Văn bản
+
+## Bài 3.1
+
+### Đề bài
+
+Xem 15 dòng đầu tiên của file log hệ thống `app.log` bằng lệnh `head -n 15`.
+
+### Lệnh thực thi
+
+Tạo file `app.log`:
+
+```bash
+touch app.log
+```
+
+Tạo dữ liệu mẫu gồm 20 dòng:
+
+```bash
+for i in {1..20}; do echo "Log line $i" >> app.log; done
+```
+
+Kiểm tra nội dung file:
+
+```bash
+cat app.log
+```
+
+Sử dụng `head -n 15` để hiển thị 15 dòng đầu tiên:
+
+```bash
+head -n 15 app.log
+```
+
+### Kết quả
+
+```text
+Log line 1
+Log line 2
+Log line 3
+Log line 4
+Log line 5
+Log line 6
+Log line 7
+Log line 8
+Log line 9
+Log line 10
+Log line 11
+Log line 12
+Log line 13
+Log line 14
+Log line 15
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+head -n 15 app.log
+```
+
+được sử dụng để hiển thị **15 dòng đầu tiên** của file `app.log`.
+
+Trong đó:
+
+- `head`: Hiển thị phần đầu của file.
+- `-n 15`: Yêu cầu hiển thị 15 dòng.
+- `app.log`: File cần đọc.
+
+File `app.log` có tổng cộng 20 dòng, nhưng lệnh `head -n 15` chỉ hiển thị từ `Log line 1` đến `Log line 15`.
+
+### Kết luận
+
+Đã thực hiện thành công yêu cầu của Bài 3.1. Lệnh `head -n 15 app.log` hiển thị chính xác 15 dòng đầu tiên của file log.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.1](images/bai-3.1.jpg)
+
+---
+## Bài 3.2
+
+### Đề bài
+
+Theo dõi liên tục các dòng log mới được ghi thêm vào cuối file `app.log` bằng lệnh `tail -f`.
+
+### Lệnh thực thi
+
+```bash
+tail -f app.log
+```
+
+### Kết quả
+
+```text
+Log line 11
+Log line 12
+Log line 13
+Log line 14
+Log line 15
+Log line 16
+Log line 17
+Log line 18
+Log line 19
+Log line 20
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+tail -f app.log
+```
+
+được sử dụng để theo dõi liên tục nội dung được ghi thêm vào cuối file `app.log`.
+
+Trong đó:
+
+- `tail`: Hiển thị phần cuối của file.
+- `-f`: Theo dõi file liên tục (follow), khi có dữ liệu mới được ghi vào file thì dữ liệu mới sẽ được hiển thị ngay trên Terminal.
+- `app.log`: File log cần theo dõi.
+
+Khi chạy lệnh, Terminal hiển thị 10 dòng cuối cùng của file `app.log`, từ `Log line 11` đến `Log line 20`.
+
+Lệnh `tail -f` tiếp tục chạy và chờ các dòng log mới được ghi thêm vào file. Khi muốn dừng theo dõi, nhấn:
+
+```text
+Ctrl + C
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.2](images/bai-3.2.jpg)
+
+---
+## Bài 3.3
+
+### Đề bài
+
+Tìm tất cả các dòng có chứa từ khóa `ERROR` trong file `app.log` bằng lệnh `grep`.
+
+### Lệnh thực thi
+
+Thêm dữ liệu log mẫu vào file `app.log`:
+
+```bash
+cat >> app.log << 'EOF'
+2026-07-23 09:10:01 INFO Application started successfully
+2026-07-23 09:10:05 INFO User login successful
+2026-07-23 09:10:10 ERROR Database connection failed
+2026-07-23 09:10:15 WARNING Database retry attempt
+2026-07-23 09:10:20 INFO Database connection restored
+2026-07-23 09:10:25 ERROR Failed to load configuration
+2026-07-23 09:10:30 INFO Application is running
+EOF
+```
+
+Tìm các dòng chứa từ khóa `ERROR`:
+
+```bash
+grep "ERROR" app.log
+```
+
+### Kết quả
+
+```text
+2026-07-23 09:10:10 ERROR Database connection failed
+2026-07-23 09:10:25 ERROR Failed to load configuration
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+grep "ERROR" app.log
+```
+
+được sử dụng để tìm kiếm và hiển thị tất cả các dòng có chứa chuỗi `ERROR` trong file `app.log`.
+
+Trong đó:
+
+- `grep`: Công cụ tìm kiếm và lọc nội dung văn bản.
+- `"ERROR"`: Từ khóa cần tìm.
+- `app.log`: File được tìm kiếm.
+
+Kết quả chỉ hiển thị 2 dòng có chứa từ khóa `ERROR`:
+
+```text
+2026-07-23 09:10:10 ERROR Database connection failed
+2026-07-23 09:10:25 ERROR Failed to load configuration
+```
+
+Các dòng chứa `INFO` và `WARNING` không được hiển thị vì không chứa từ khóa `ERROR`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.3](images/bai-3.3.jpg)
+
+---
+## Bài 3.3
+
+### Đề bài
+
+Đếm tổng số dòng trong file `customers.csv` bằng lệnh `wc -l`.
+
+### Lệnh thực thi
+
+Đếm tổng số dòng của file:
+
+```bash
+wc -l customers.csv
+```
+
+Để đếm riêng số dòng dữ liệu, không tính dòng tiêu đề:
+
+```bash
+tail -n +2 customers.csv | wc -l
+```
+
+### Kết quả
+
+Tổng số dòng trong file:
+
+```text
+6 customers.csv
+```
+
+Số dòng dữ liệu không tính dòng tiêu đề:
+
+```text
+5
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+wc -l customers.csv
+```
+
+sử dụng tùy chọn `-l` để đếm số dòng trong file `customers.csv`.
+
+Kết quả:
+
+```text
+6 customers.csv
+```
+
+cho biết file `customers.csv` có tổng cộng **6 dòng**.
+
+Trong đó, file có:
+
+- 1 dòng tiêu đề.
+- 5 dòng dữ liệu khách hàng.
+
+Để kiểm tra riêng số dòng dữ liệu và bỏ qua dòng tiêu đề, sử dụng:
+
+```bash
+tail -n +2 customers.csv | wc -l
+```
+
+Kết quả là:
+
+```text
+5
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.3](images/bai-3.3.jpg)
+
+---
+## Bài 3.5
+
+### Đề bài
+
+Tìm kiếm không phân biệt chữ hoa/chữ thường từ khóa `database` và in ra kèm số thứ tự dòng xuất hiện trong tệp log bằng lệnh `grep -in`.
+
+### Lệnh thực thi
+
+```bash
+grep -in "database" app.log
+```
+
+### Kết quả
+
+```text
+23:2026-07-23 09:10:10 ERROR Database connection failed
+24:2026-07-23 09:10:15 WARNING Database retry attempt
+25:2026-07-23 09:10:20 INFO Database connection restored
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+grep -in "database" app.log
+```
+
+được sử dụng để tìm kiếm từ khóa `database` trong file `app.log`, không phân biệt chữ hoa và chữ thường, đồng thời hiển thị số thứ tự dòng.
+
+Trong đó:
+
+- `grep`: Tìm kiếm nội dung trong file.
+- `-i`: Không phân biệt chữ hoa và chữ thường. Vì vậy, `database`, `Database` và `DATABASE` đều được tìm thấy.
+- `-n`: Hiển thị số thứ tự dòng chứa kết quả tìm kiếm.
+- `"database"`: Từ khóa cần tìm.
+- `app.log`: File log cần tìm kiếm.
+
+Kết quả cho thấy từ khóa `Database` xuất hiện tại các dòng **23, 24 và 25** của file `app.log`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.5](images/bai-3.5.jpg)
+
+---
+## Bài 3.6
+
+### Đề bài
+
+Quét và tìm kiếm tất cả các tệp tin có định dạng đuôi `.parquet` nằm trong toàn bộ thư mục `/var/data/` bằng lệnh `find`.
+
+### Lệnh thực thi
+
+Tạo cấu trúc thư mục và các file `.parquet` để thực hành:
+
+```bash
+sudo mkdir -p /var/data/raw/2026
+sudo mkdir -p /var/data/processed
+sudo touch /var/data/raw/2026/customers.parquet
+sudo touch /var/data/raw/2026/orders.parquet
+sudo touch /var/data/processed/result.parquet
+```
+
+Tìm tất cả các file có đuôi `.parquet`:
+
+```bash
+find /var/data/ -type f -name "*.parquet"
+```
+
+### Kết quả
+
+```text
+/var/data/processed/result.parquet
+/var/data/raw/2026/orders.parquet
+/var/data/raw/2026/customers.parquet
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+find /var/data/ -type f -name "*.parquet"
+```
+
+được sử dụng để tìm kiếm tất cả các file có đuôi `.parquet` trong thư mục `/var/data/` và toàn bộ các thư mục con bên trong.
+
+Trong đó:
+
+- `find`: Lệnh tìm kiếm file và thư mục.
+- `/var/data/`: Thư mục bắt đầu tìm kiếm.
+- `-type f`: Chỉ tìm kiếm các file thông thường.
+- `-name "*.parquet"`: Tìm các file có tên kết thúc bằng `.parquet`.
+- `*`: Đại diện cho bất kỳ chuỗi ký tự nào.
+
+Kết quả tìm kiếm gồm 3 file:
+
+```text
+/var/data/processed/result.parquet
+/var/data/raw/2026/orders.parquet
+/var/data/raw/2026/customers.parquet
+```
+
+Các file nằm ở các thư mục con khác nhau nhưng đều được `find` tìm thấy vì lệnh đã quét đệ quy toàn bộ `/var/data/`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.6](images/bai-3.6.jpg)
+
+---
+## Bài 3.7
+
+### Đề bài
+
+Sử dụng Pipe `|` kết hợp `grep` và `wc -l` để đếm tổng số dòng chứa `[ERROR]` trong file `app.log`.
+
+### Lệnh thực thi
+
+Thêm dữ liệu log có chứa `[ERROR]`:
+
+```bash
+cat >> app.log << 'EOF'
+2026-07-23 09:20:01 [INFO] Application started
+2026-07-23 09:20:05 [ERROR] Database connection failed
+2026-07-23 09:20:10 [INFO] Retrying database connection
+2026-07-23 09:20:15 [ERROR] Connection timeout
+2026-07-23 09:20:20 [INFO] Database connection restored
+2026-07-23 09:20:25 [ERROR] Failed to load configuration
+EOF
+```
+
+Đếm số dòng chứa `[ERROR]`:
+
+```bash
+grep "\[ERROR\]" app.log | wc -l
+```
+
+### Kết quả
+
+```text
+3
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+grep "\[ERROR\]" app.log | wc -l
+```
+
+sử dụng Pipe `|` để kết hợp hai lệnh.
+
+- `grep "\[ERROR\]" app.log`: Tìm và lọc các dòng chứa `[ERROR]`.
+- `|`: Chuyển kết quả của lệnh `grep` sang lệnh tiếp theo.
+- `wc -l`: Đếm số dòng nhận được từ lệnh `grep`.
+
+Kết quả:
+
+```text
+3
+```
+
+cho biết file `app.log` hiện có **3 dòng chứa `[ERROR]`**.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.7](images/bai-3.7.jpg)
+
+---
+## Bài 3.8
+
+### Đề bài
+
+Dùng `sort` và `uniq -c` để thống kê số lần xuất hiện của từng mức log (`INFO`, `WARNING`, `ERROR`) trong file `app.log`.
+
+### Lệnh thực thi
+
+```bash
+grep -oE '\[(INFO|WARNING|ERROR)\]' app.log | sort | uniq -c
+```
+
+### Kết quả
+
+```text
+      3 [ERROR]
+      3 [INFO]
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+grep -oE '\[(INFO|WARNING|ERROR)\]' app.log | sort | uniq -c
+```
+
+sử dụng Pipe `|` để kết hợp nhiều lệnh xử lý dữ liệu.
+
+Trong đó:
+
+- `grep -oE '\[(INFO|WARNING|ERROR)\]' app.log`: Tìm và chỉ lấy các mức log có dạng `[INFO]`, `[WARNING]` hoặc `[ERROR]`.
+- `sort`: Sắp xếp các kết quả để những giá trị giống nhau nằm cạnh nhau.
+- `uniq -c`: Đếm số lần xuất hiện của từng giá trị.
+
+Kết quả:
+
+```text
+      3 [ERROR]
+      3 [INFO]
+```
+
+cho biết trong các dòng log có định dạng mức log nằm trong dấu `[]`:
+
+- `[ERROR]` xuất hiện 3 lần.
+- `[INFO]` xuất hiện 3 lần.
+- Không có kết quả `[WARNING]` trong dữ liệu được tìm kiếm.
+
+Các dòng `WARNING` trước đó trong `app.log` không được tính vì chúng có dạng `WARNING`, không có dấu `[]`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.8](images/bai-3.8.jpg)
+
+---
+## Bài 3.9
+
+### Đề bài
+
+Sử dụng `awk` để in ra cột 1 và cột 3 của file `customers.csv`.
+
+### Lệnh thực thi
+
+```bash
+awk -F',' '{print $1, $3}' customers.csv
+```
+
+### Kết quả
+
+```text
+id email
+1 an@example.com
+2 binh@example.com
+3 cuong@example.com
+4 dung@example.com
+5 em@example.com
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+awk -F',' '{print $1, $3}' customers.csv
+```
+
+được sử dụng để trích xuất và in ra cột 1 và cột 3 trong file `customers.csv`.
+
+Trong đó:
+
+- `awk`: Công cụ xử lý và trích xuất dữ liệu theo từng cột.
+- `-F','`: Thiết lập dấu phẩy `,` làm ký tự phân cách giữa các cột.
+- `$1`: Đại diện cho cột thứ nhất.
+- `$3`: Đại diện cho cột thứ ba.
+- `print $1, $3`: In ra cột 1 và cột 3.
+- `customers.csv`: File dữ liệu cần xử lý.
+
+Với dòng dữ liệu:
+
+```text
+1,Nguyen Van An,an@example.com
+```
+
+thì:
+
+```text
+$1 = 1
+$2 = Nguyen Van An
+$3 = an@example.com
+```
+
+Do đó, lệnh chỉ in ra:
+
+```text
+1 an@example.com
+```
+
+Kết quả cho thấy lệnh đã trích xuất chính xác cột `id` và `email` từ file `customers.csv`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.9](images/bai-3.9.jpg)
+
+---
+## Bài 3.10
+
+### Đề bài
+
+Sử dụng `sed` để thay thế chuỗi `INFO` thành `INFORMATION` trong file `app.log`.
+
+### Lệnh thực thi
+
+Thay thế trực tiếp chuỗi `INFO` thành `INFORMATION` trong file:
+
+```bash
+sed -i 's/INFO/INFORMATION/g' app.log
+```
+
+Kiểm tra các dòng đã được thay thế:
+
+```bash
+grep "INFORMATION" app.log
+```
+
+### Kết quả
+
+```text
+2026-07-23 09:10:01 INFORMATION Application started successfully
+2026-07-23 09:10:05 INFORMATION User login successful
+2026-07-23 09:10:20 INFORMATION Database connection restored
+2026-07-23 09:10:30 INFORMATION Application is running
+2026-07-23 09:20:01 [INFORMATION] Application started
+2026-07-23 09:20:10 [INFORMATION] Retrying database connection
+2026-07-23 09:20:20 [INFORMATION] Database connection restored
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+sed -i 's/INFO/INFORMATION/g' app.log
+```
+
+được sử dụng để tìm và thay thế chuỗi `INFO` thành `INFORMATION` trực tiếp trong file `app.log`.
+
+Trong đó:
+
+- `sed`: Công cụ xử lý và chỉnh sửa nội dung văn bản.
+- `-i`: Chỉnh sửa trực tiếp file.
+- `s`: Viết tắt của `substitute`, dùng để thay thế chuỗi.
+- `INFO`: Chuỗi cần tìm.
+- `INFORMATION`: Chuỗi được sử dụng để thay thế.
+- `g`: Thay thế tất cả các lần xuất hiện của `INFO` trong mỗi dòng.
+- `app.log`: File cần chỉnh sửa.
+
+Sau khi thực hiện, các chuỗi `INFO` trong file đã được thay thế thành `INFORMATION`.
+
+Lệnh:
+
+```bash
+grep "INFORMATION" app.log
+```
+
+được sử dụng để kiểm tra lại các dòng đã được thay đổi.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.10](images/bai-3.10.jpg)
+
+---
+
+## Bài 3.8
+
+### Đề bài
+
+Sử dụng lệnh `cut` để trích xuất riêng cột địa chỉ IP (cột thứ nhất) từ các dòng log của Web Server.
+
+### Lệnh thực thi
+
+Tạo file `app.log` chứa dữ liệu log Web Server:
+
+```bash
+cat > app.log << 'EOF'
+192.168.1.10 - - [23/Jul/2026:09:10:01 +0000] "GET /index.html HTTP/1.1" 200
+192.168.1.11 - - [23/Jul/2026:09:10:05 +0000] "GET /login HTTP/1.1" 200
+10.0.0.15 - - [23/Jul/2026:09:10:10 +0000] "POST /login HTTP/1.1" 401
+192.168.1.10 - - [23/Jul/2026:09:10:15 +0000] "GET /dashboard HTTP/1.1" 200
+10.0.0.20 - - [23/Jul/2026:09:10:20 +0000] "GET /api/users HTTP/1.1" 200
+192.168.1.12 - - [23/Jul/2026:09:10:25 +0000] "GET /products HTTP/1.1" 200
+10.0.0.15 - - [23/Jul/2026:09:10:30 +0000] "POST /login HTTP/1.1" 401
+EOF
+```
+
+Trích xuất cột địa chỉ IP:
+
+```bash
+cut -d' ' -f1 app.log
+```
+
+### Kết quả
+
+```text
+192.168.1.10
+192.168.1.11
+10.0.0.15
+192.168.1.10
+10.0.0.20
+192.168.1.12
+10.0.0.15
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+cut -d' ' -f1 app.log
+```
+
+được sử dụng để trích xuất cột đầu tiên trong file log Web Server.
+
+Trong đó:
+
+- `cut`: Công cụ dùng để cắt và trích xuất dữ liệu từ mỗi dòng.
+- `-d' '`: Sử dụng dấu cách làm ký tự phân cách giữa các cột.
+- `-f1`: Lấy trường dữ liệu đầu tiên.
+- `app.log`: File log cần xử lý.
+
+Trong mỗi dòng log, địa chỉ IP nằm ở vị trí đầu tiên. Ví dụ:
+
+```text
+192.168.1.10 - - [23/Jul/2026:09:10:01 +0000] "GET /index.html HTTP/1.1" 200
+```
+
+Sau khi sử dụng:
+
+```bash
+cut -d' ' -f1 app.log
+```
+
+chỉ còn:
+
+```text
+192.168.1.10
+```
+
+Kết quả cho thấy lệnh `cut` đã trích xuất thành công địa chỉ IP của từng client từ các dòng log Web Server.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.8](images/bai-3.8.jpg)
+
+---
+
+## Bài 3.9
+
+### Đề bài
+
+Đọc tệp log, tìm các dòng lỗi trùng nhau, lọc bỏ các dòng trùng lặp và sắp xếp danh sách lỗi duy nhất theo thứ tự bảng chữ cái, sử dụng kết hợp `sort` và `uniq`.
+
+### Lệnh thực thi
+
+Kiểm tra nội dung file `error.log`:
+
+```bash
+cat error.log
+```
+
+Sắp xếp các dòng lỗi và loại bỏ các dòng trùng lặp:
+
+```bash
+sort error.log | uniq
+```
+
+### Kết quả
+
+```text
+Connection timeout
+Database connection failed
+File not found
+Permission denied
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+sort error.log | uniq
+```
+
+sử dụng Pipe `|` để kết hợp hai lệnh `sort` và `uniq`.
+
+- `sort error.log`: Sắp xếp các dòng trong file `error.log` theo thứ tự bảng chữ cái.
+- `|`: Chuyển kết quả của lệnh `sort` sang lệnh `uniq`.
+- `uniq`: Loại bỏ các dòng bị trùng lặp liên tiếp.
+
+Việc sử dụng `sort` trước `uniq` giúp đưa các dòng giống nhau về cạnh nhau, từ đó `uniq` có thể loại bỏ các dòng trùng lặp.
+
+File ban đầu có các lỗi bị lặp lại:
+
+```text
+Database connection failed
+File not found
+Permission denied
+```
+
+Sau khi thực hiện:
+
+```bash
+sort error.log | uniq
+```
+
+chỉ còn danh sách các lỗi duy nhất:
+
+```text
+Connection timeout
+Database connection failed
+File not found
+Permission denied
+```
+
+Các lỗi đã được sắp xếp theo thứ tự bảng chữ cái.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.9](images/bai-3.9.jpg)
+
+---
+## Bài 3.10
+
+### Đề bài
+
+Sử dụng `awk` để tính tổng giá trị tiền ở cột 5 trong file `transactions.csv`, trong đó các cột được phân cách bằng dấu phẩy `,`.
+
+### Lệnh thực thi
+
+Tạo file `transactions.csv`:
+
+```bash
+cat > transactions.csv << 'EOF'
+id,date,customer,type,amount
+1,2026-07-23,C001,SALE,150000
+2,2026-07-23,C002,SALE,250000
+3,2026-07-23,C003,REFUND,50000
+4,2026-07-23,C004,SALE,300000
+5,2026-07-23,C005,SALE,200000
+EOF
+```
+
+Tính tổng giá trị tiền ở cột 5:
+
+```bash
+awk -F',' 'NR > 1 {sum += $5} END {print sum}' transactions.csv
+```
+
+### Kết quả
+
+```text
+950000
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+awk -F',' 'NR > 1 {sum += $5} END {print sum}' transactions.csv
+```
+
+được sử dụng để tính tổng các giá trị trong cột 5 của file `transactions.csv`.
+
+Trong đó:
+
+- `awk`: Công cụ xử lý dữ liệu theo cột.
+- `-F','`: Sử dụng dấu phẩy `,` làm ký tự phân cách giữa các cột.
+- `NR > 1`: Bỏ qua dòng đầu tiên vì đây là dòng tiêu đề.
+- `$5`: Đại diện cho cột thứ 5, tức cột `amount`.
+- `sum += $5`: Cộng giá trị của cột 5 vào biến `sum`.
+- `END`: Thực hiện lệnh sau khi đã xử lý tất cả các dòng.
+- `print sum`: In ra tổng giá trị.
+
+Các giá trị ở cột `amount` là:
+
+```text
+150000
+250000
+50000
+300000
+200000
+```
+
+Tổng:
+
+```text
+150000 + 250000 + 50000 + 300000 + 200000 = 950000
+```
+
+Kết quả cuối cùng:
+
+```text
+950000
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 3.10](images/bai-3.10.jpg)
+
+---
+## Bài 4.1
+
+### Đề bài
+
+Sử dụng lệnh `ps` để hiển thị danh sách các tiến trình đang chạy thuộc về người dùng hiện tại.
+
+### Lệnh thực thi
+
+```bash
+ps
+```
+
+### Kết quả
+
+```text
+    PID TTY          TIME CMD
+   2537 pts/0    00:00:01 bash
+   5999 pts/0    00:00:00 ps
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+ps
+```
+
+được sử dụng để hiển thị thông tin về các tiến trình đang chạy trong phiên Terminal hiện tại.
+
+Các cột trong kết quả:
+
+- `PID`: Mã định danh của tiến trình (Process ID).
+- `TTY`: Terminal mà tiến trình đang chạy.
+- `TIME`: Tổng thời gian CPU mà tiến trình đã sử dụng.
+- `CMD`: Tên lệnh hoặc chương trình của tiến trình.
+
+Trong kết quả trên:
+
+- Tiến trình có `PID 2537` là `bash`, đây là Shell đang chạy phiên Terminal hiện tại.
+- Tiến trình có `PID 5999` là `ps`, chính là lệnh vừa được thực thi để hiển thị danh sách tiến trình.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 4.1](images/bai-4.1.jpg)
+
+---
