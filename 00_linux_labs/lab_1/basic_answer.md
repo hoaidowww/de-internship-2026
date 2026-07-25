@@ -1930,3 +1930,613 @@ Trong kết quả trên:
 ![Ảnh minh chứng Bài 4.1](images/bai-4.1.jpg)
 
 ---
+## Bài 4.2
+
+### Đề bài
+
+Kiểm tra lượng bộ nhớ RAM còn trống và đã sử dụng của máy chủ dưới định dạng dễ đọc như Gigabytes/Megabytes.
+
+### Lệnh thực thi
+
+```bash
+free -h
+```
+
+### Kết quả
+
+```text
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       481Mi       7.2Gi       3.8Mi       147Mi       7.2Gi
+Swap:          2.0Gi          0B       2.0Gi
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+free -h
+```
+
+được sử dụng để kiểm tra tình trạng sử dụng bộ nhớ RAM và Swap của hệ thống.
+
+Trong đó:
+
+- `free`: Hiển thị thông tin về bộ nhớ hệ thống.
+- `-h`: Hiển thị dung lượng dưới dạng dễ đọc, chẳng hạn như `MiB` và `GiB`.
+
+Các thông tin chính trong kết quả:
+
+- `total`: Tổng dung lượng bộ nhớ.
+- `used`: Dung lượng bộ nhớ đang được sử dụng.
+- `free`: Dung lượng bộ nhớ hoàn toàn chưa được sử dụng.
+- `shared`: Dung lượng bộ nhớ được chia sẻ.
+- `buff/cache`: Dung lượng được sử dụng cho bộ đệm và bộ nhớ cache.
+- `available`: Dung lượng bộ nhớ có thể sử dụng cho các tiến trình mới.
+- `Swap`: Thông tin về vùng bộ nhớ Swap.
+
+Theo kết quả thực tế:
+
+- Tổng RAM: `7.7 GiB`.
+- RAM đang sử dụng: `481 MiB`.
+- RAM còn trống: `7.2 GiB`.
+- RAM khả dụng: `7.2 GiB`.
+- Tổng Swap: `2.0 GiB`.
+- Swap đang sử dụng: `0 B`.
+
+Kết quả cho thấy hệ thống hiện đang sử dụng lượng RAM tương đối thấp và còn khoảng `7.2 GiB` RAM khả dụng.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 4.2](images/bai-4.2.jpg)
+
+---
+## Bài 4.3
+
+### Đề bài
+
+Tìm kiếm mã định danh tiến trình (PID) của chương trình Python đang chạy ngầm trên hệ thống bằng cách lọc kết quả của lệnh `ps aux`.
+
+### Lệnh thực thi
+
+```bash
+ps aux | grep python
+```
+
+### Kết quả
+
+```text
+root         337  0.0  0.2 107036 23148 ?        Ssl  09:28   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+hoaido       577  0.0  0.0   4096  2100 pts/0    S+   09:37   0:00 grep --color=auto python
+```
+
+### Xác định PID
+
+Trong kết quả trên, dòng:
+
+```text
+root         337  ... /usr/bin/python3 ...
+```
+
+là tiến trình Python đang chạy trên hệ thống.
+
+- User: `root`
+- PID: `337`
+- Chương trình: `/usr/bin/python3`
+- Tiến trình: `unattended-upgrade-shutdown`
+
+Dòng:
+
+```text
+hoaido       577  ... grep --color=auto python
+```
+
+là tiến trình của chính lệnh `grep python` đang được thực thi, không phải tiến trình Python cần tìm.
+
+Vì vậy, PID của chương trình Python được tìm thấy là:
+
+```text
+337
+```
+
+### Kiểm tra PID
+
+Sử dụng lệnh sau để kiểm tra riêng tiến trình có PID `337`:
+
+```bash
+ps -p 337
+```
+
+### Giải thích
+
+Lệnh:
+
+```bash
+ps aux | grep python
+```
+
+kết hợp hai lệnh:
+
+- `ps aux`: Hiển thị danh sách các tiến trình đang chạy trên hệ thống.
+- `|`: Chuyển kết quả của `ps aux` sang lệnh `grep`.
+- `grep python`: Lọc các dòng có chứa từ khóa `python`.
+
+Kết quả cho thấy hệ thống đang có một tiến trình Python với PID là `337`.
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 4.3](images/bai-4.3.jpg)
+
+---
+## Bài 4.4
+
+### Đề bài
+
+Sử dụng lệnh tương tác `top` hoặc `htop` để xác định tiến trình nào đang chiếm dụng nhiều tài nguyên CPU nhất hiện tại.
+
+### Lệnh thực thi
+
+```bash
+top
+```
+
+### Kết quả
+
+```text
+top - 09:52:42 up 23 min,  1 user,  load average: 0.00, 0.00, 0.00
+Tasks:  25 total,   1 running,  24 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.1 sy,  0.0 ni, 99.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+      1 root      20   0   21900  13280   9780 S   0.0   0.2   0:02.15 systemd
+      2 root      20   0    3180   2204   2072 S   0.0   0.0   0:00.01 init-systemd(Ub
+      8 root      20   0    3196   2128   2008 S   0.0   0.0   0:00.00 init
+     61 root      19  -1   66836  19608  18460 S   0.0   0.2   0:00.58 systemd-journal
+    109 root      20   0   25020   6348   5132 S   0.0   0.1   0:00.32 systemd-udevd
+    126 systemd+  20   0   21344  13228  11100 S   0.0   0.2   0:00.23 systemd-resolve
+    127 systemd+  20   0   91036   7944   6980 S   0.0   0.1   0:00.15 systemd-timesyn
+    183 root      20   0    4244   2684   2432 S   0.0   0.0   0:00.01 cron
+    184 message+  20   0    9636   5376   4684 S   0.0   0.1   0:00.16 dbus-daemon
+    206 root      20   0   17972   8884   7848 S   0.0   0.1   0:00.20 systemd-logind
+    212 root      20   0 1830616  11008   8000 S   0.0   0.1   0:00.16 wsl-pro-service
+    228 root      20   0    6832   5144   3820 S   0.0   0.1   0:00.06 apache2
+    229 www-data  20   0 1933804   5768   3940 S   0.0   0.1   0:00.01 apache2
+    230 www-data  20   0 1999340   5768   3936 S   0.0   0.1   0:00.01 apache2
+    272 root      20   0    3124   1976   1836 S   0.0   0.0   0:00.00 agetty
+    293 syslog    20   0  222516   5956   4548 S   0.0   0.1   0:00.16 rsyslogd
+    337 root      20   0  107036  23148  13692 S   0.0   0.3   0:00.20 unattended-upgr
+    391 root      20   0    3188   1108    980 S   0.0   0.0   0:00.00 SessionLeader
+    392 root      20   0    3204   1248   1108 S   0.0   0.0   0:00.04 Relay(394)
+    394 hoaido    20   0    6080   5396   3660 S   0.0   0.1   0:00.10 bash
+    395 root      20   0    6704   4664   3884 S   0.0   0.1   0:00.02 login
+    447 hoaido    20   0   20128  11336   9388 S   0.0   0.1   0:00.23 systemd
+    448 hoaido    20   0   21164   3592   1868   S   0.0   0.0   0:00.00 (sd-pam)
+```
+
+### Phân tích kết quả
+
+Trong giao diện `top`, cột `%CPU` thể hiện phần trăm CPU mà mỗi tiến trình đang sử dụng.
+
+Kết quả thực tế cho thấy:
+
+```text
+%Cpu(s):  0.0 us,  0.1 sy,  0.0 ni, 99.9 id
+```
+
+Trong đó:
+
+- `0.0 us`: CPU dành cho tiến trình người dùng.
+- `0.1 sy`: CPU dành cho tiến trình hệ thống.
+- `99.9 id`: CPU đang ở trạng thái nhàn rỗi.
+
+Các tiến trình trong danh sách đều có:
+
+```text
+%CPU = 0.0
+```
+
+Do đó, tại thời điểm kiểm tra, **không có tiến trình nào sử dụng CPU cao hơn các tiến trình còn lại**. CPU của hệ thống gần như hoàn toàn ở trạng thái nhàn rỗi.
+
+### Thoát khỏi `top`
+
+Để thoát khỏi giao diện `top`, nhấn phím:
+
+```text
+q
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 4.4](images/bai-4.4.jpg)
+
+---
+## Bài 4.5
+
+### Đề bài
+
+Tắt (Kill) một tiến trình đang bị treo thông qua mã PID (`kill`).
+
+### Bước 1: Xác định tiến trình cần tắt
+
+Từ kết quả của lệnh `top`, xác định tiến trình `apache2` có PID là `229`.
+
+### Bước 2: Thử tắt tiến trình
+
+Sử dụng lệnh:
+
+```bash
+sudo kill 229
+```
+
+Kiểm tra lại tiến trình:
+
+```bash
+ps -p 229
+```
+
+Kết quả:
+
+```text
+    PID TTY          TIME CMD
+    229 ?        00:00:00 apache2
+```
+
+Tiến trình vẫn còn hoạt động.
+
+### Bước 3: Tắt tiến trình bằng tín hiệu SIGKILL
+
+Sử dụng lệnh:
+
+```bash
+sudo kill -9 229
+```
+
+Sau đó kiểm tra lại:
+
+```bash
+ps -p 229
+```
+
+Kết quả:
+
+```text
+    PID TTY          TIME CMD
+```
+
+Không còn thông tin của tiến trình PID `229`, cho thấy tiến trình `apache2` đã được tắt thành công.
+
+### Các lệnh đã thực hiện
+
+```bash
+sudo kill 229
+ps -p 229
+sudo kill -9 229
+ps -p 229
+```
+
+### Ảnh minh chứng
+
+![Ảnh minh chứng Bài 4.5](images/bai-4.5.jpg)
+---
+## Bài 4.6
+
+### Đề bài
+
+Ép buộc tắt ngay lập tức (Force Kill) một tiến trình đang bị treo cứng không phản hồi bằng lệnh `kill -9`.
+
+### Lệnh thực hiện
+
+Sử dụng lệnh sau để Force Kill tiến trình có PID `230`:
+
+```bash
+sudo kill -9 230
+```
+
+Sau đó kiểm tra tiến trình:
+
+```bash
+ps -p 230
+```
+
+### Kết quả
+
+```text
+    PID TTY          TIME CMD
+```
+
+Kết quả không còn thông tin của tiến trình có PID `230`, cho thấy tiến trình đã được Force Kill thành công.
+
+### Giải thích
+
+- `kill`: Gửi tín hiệu đến một tiến trình thông qua PID.
+- `-9`: Sử dụng tín hiệu `SIGKILL`, buộc tiến trình dừng ngay lập tức.
+- `230`: PID của tiến trình cần tắt.
+
+Các lệnh đã thực hiện:
+
+```bash
+sudo kill -9 230
+ps -p 230
+```
+
+---
+## Bài 4.7
+
+### Đề bài
+
+Xác định tiến trình nào đang mở và lắng nghe (listening) tại cổng mạng số `5432` của database PostgreSQL bằng lệnh `ss`.
+
+### Bước 1: Khởi động PostgreSQL
+
+```bash
+sudo service postgresql start
+```
+
+### Bước 2: Kiểm tra tiến trình đang lắng nghe tại cổng 5432
+
+```bash
+sudo ss -lntp | grep :5432
+```
+
+### Kết quả
+
+```text
+LISTEN 0      200         127.0.0.1:5432      0.0.0.0:*    users:(("postgres",pid=3336,fd=6))
+```
+
+### Phân tích kết quả
+
+Từ kết quả trên có thể xác định:
+
+- **Tiến trình:** `postgres`
+- **PID:** `3336`
+- **Cổng:** `5432`
+- **Địa chỉ lắng nghe:** `127.0.0.1:5432`
+- **Trạng thái:** `LISTEN`
+
+Như vậy, tiến trình `postgres` với PID `3336` đang lắng nghe tại cổng `5432` của PostgreSQL.
+
+---
+## Bài 4.8
+
+### Đề bài
+
+Khởi chạy một chương trình Python `ingest.py` chạy ở chế độ nền (Background) và vẫn tiếp tục chạy bình thường ngay cả khi tắt Terminal hoặc ngắt kết nối SSH bằng lệnh `nohup`.
+
+### Bước 1: Tạo chương trình `ingest.py`
+
+Tạo file:
+
+```bash
+nano ingest.py
+```
+
+Nội dung chương trình:
+
+```python
+import time
+
+while True:
+    print("Data ingestion is running...", flush=True)
+    time.sleep(10)
+```
+
+### Bước 2: Chạy chương trình ở chế độ nền
+
+Sử dụng lệnh:
+
+```bash
+nohup python3 ingest.py > ingest.log 2>&1 &
+```
+
+Kết quả:
+
+```text
+[1] 3412
+```
+
+PID của tiến trình `ingest.py` là `3412`.
+
+### Bước 3: Kiểm tra tiến trình
+
+Sử dụng lệnh:
+
+```bash
+ps -ef | grep ingest.py
+```
+
+Kết quả:
+
+```text
+hoaido      3412     394  0 10:49 pts/0    00:00:00 python3 ingest.py
+hoaido      3415     394  0 10:50 pts/0    00:00:00 grep --color=auto ingest.py
+```
+
+Dòng có PID `3412` cho thấy chương trình `ingest.py` đang chạy ở chế độ nền.
+
+### Bước 4: Kiểm tra file log
+
+Sử dụng lệnh:
+
+```bash
+cat ingest.log
+```
+
+Kết quả:
+
+```text
+nohup: ignoring input
+Data ingestion is running...
+Data ingestion is running...
+```
+
+Dòng `Data ingestion is running...` cho thấy chương trình Python đang chạy và liên tục ghi dữ liệu vào file `ingest.log`.
+
+Dòng:
+
+```text
+nohup: ignoring input
+```
+
+là thông báo bình thường của `nohup`, không phải lỗi.
+
+### Kết quả
+
+Chương trình `ingest.py` đã được chạy ở chế độ background với PID `3412` bằng `nohup`. Output của chương trình được chuyển hướng vào file `ingest.log`.
+
+Lệnh đã sử dụng:
+
+```bash
+nohup python3 ingest.py > ingest.log 2>&1 &
+```
+
+---
+## Bài 4.9
+
+### Đề bài
+
+Kiểm tra danh sách các tác vụ đang chạy ngầm trong background và đưa một tác vụ cụ thể quay trở lại màn hình chính foreground bằng lệnh `jobs` kết hợp với `fg`.
+
+### Bước 1: Chạy tác vụ ở background
+
+Sử dụng lệnh:
+
+```bash
+sleep 300 &
+```
+
+Kết quả:
+
+```text
+[1] 681
+```
+
+Trong đó:
+
+- Job ID: `1`
+- PID: `681`
+- Chương trình: `sleep 300`
+
+### Bước 2: Kiểm tra các tác vụ background
+
+Sử dụng lệnh:
+
+```bash
+jobs
+```
+
+Kết quả:
+
+```text
+[1]+  Running                 sleep 300 &
+```
+
+Kết quả cho thấy tác vụ `sleep 300` đang chạy ở chế độ background.
+
+### Bước 3: Đưa tác vụ về foreground
+
+Sử dụng lệnh:
+
+```bash
+fg %1
+```
+
+Kết quả:
+
+```text
+sleep 300
+```
+
+Tác vụ có Job ID `1` đã được đưa từ background trở lại foreground thành công.
+
+### Bước 4: Dừng tác vụ
+
+Nhấn:
+
+```text
+Ctrl + C
+```
+
+để dừng tiến trình `sleep 300`.
+
+### Các lệnh đã thực hiện
+
+```bash
+sleep 300 &
+jobs
+fg %1
+```
+
+Sau đó nhấn:
+
+```text
+Ctrl + C
+```
+
+---
+## Bài 4.10
+
+### Đề bài
+
+Thiết lập lịch tự động chạy script Python `daily_etl.py` vào lúc 12:00 giờ đêm mỗi ngày thông qua tiện ích lập lịch hệ thống `crontab`. :contentReference[oaicite:0]{index=0}
+
+### Bước 1: Xác định thư mục làm việc
+
+```bash
+pwd
+```
+
+Kết quả:
+
+```text
+/home/hoaido/de-internship-2026/00_linux_labs/lab_1
+```
+
+### Bước 2: Mở crontab để chỉnh sửa
+
+```bash
+crontab -e
+```
+
+Sau khi chọn trình soạn thảo `nano`, thêm dòng sau vào crontab:
+
+```cron
+0 0 * * * /usr/bin/python3 /home/hoaido/de-internship-2026/00_linux_labs/lab_1/daily_etl.py
+```
+
+### Bước 3: Kiểm tra crontab đã được lưu
+
+```bash
+crontab -l
+```
+
+Kết quả:
+
+```text
+# m h  dom mon dow   command
+0 0 * * * /usr/bin/python3 /home/hoaido/de-internship-2026/00_linux_labs/lab_1/daily_etl.py
+```
+
+### Giải thích
+
+- `0 0 * * *` nghĩa là chạy vào **00:00 mỗi ngày**.
+- `/usr/bin/python3` là đường dẫn đến Python interpreter.
+- `/home/hoaido/de-internship-2026/00_linux_labs/lab_1/daily_etl.py` là đường dẫn tuyệt đối tới script cần chạy.
+
+### Kiểm tra dịch vụ cron
+
+```bash
+sudo service cron status
+```
+
+Kết quả cho thấy dịch vụ `cron` đang ở trạng thái:
+
+```text
+Active: active (running)
+```
+
+### Lưu ý
+
+Một dòng lệnh cron phải được nhập trong **crontab**, không được gõ trực tiếp ở Terminal. Nếu gõ trực tiếp, shell sẽ báo lỗi dạng `command not found`.
+
+---
